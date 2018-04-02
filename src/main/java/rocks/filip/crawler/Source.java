@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class Source {
 
@@ -12,7 +13,7 @@ public class Source {
     private List<String> toFollowUrlCssQueries;
     private List<String> resultPageCssQueries;
     private Map<String, ResultValueEntity> resultValueEntities;
-    private Map<String, ResultValueCleanupStrategy> resultValueCleanupStrategies;
+    private Map<String, Function<String, String>> resultValueCleanupStrategies;
 
     public Source(String name, String seed) {
         this.name = name;
@@ -35,7 +36,7 @@ public class Source {
         resultValueEntities.put(resultKey, resultValueEntity);
     }
 
-    public void addResultValueCleanupStrategy(String resultKey, ResultValueCleanupStrategy resultValueCleanupStrategy) {
+    public void addResultValueCleanupStrategy(String resultKey, Function<String, String> resultValueCleanupStrategy) {
         resultValueCleanupStrategies.put(resultKey, resultValueCleanupStrategy);
     }
 
@@ -59,8 +60,20 @@ public class Source {
         return resultValueEntities;
     }
 
-    public Map<String, ResultValueCleanupStrategy> getResultValueCleanupStrategies() {
+    public Map<String, Function<String, String>> getResultValueCleanupStrategies() {
         return resultValueCleanupStrategies;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Source{" +
+                "name='" + name + '\'' +
+                ", seed='" + seed + '\'' +
+                ", toFollowUrlCssQueries=" + toFollowUrlCssQueries +
+                ", resultPageCssQueries=" + resultPageCssQueries +
+                ", resultValueEntities=" + resultValueEntities +
+                ", resultValueCleanupStrategies=" + resultValueCleanupStrategies +
+                '}';
+    }
+
 }

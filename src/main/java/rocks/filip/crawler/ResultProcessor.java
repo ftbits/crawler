@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public class ResultProcessor extends Thread {
 
@@ -34,10 +35,10 @@ public class ResultProcessor extends Thread {
                     resultValueCssQueries.forEach((resultKey, resultValueEntity) -> {
                         String resultValue = resultValueEntity.getResultType().extractResult(document, resultValueEntity.getResultValueCssQuery());
 
-                        ResultValueCleanupStrategy resultValueCleanupStrategy = crawler.getSource().getResultValueCleanupStrategies().get(resultKey);
+                        Function<String, String> resultValueCleanupStrategy = crawler.getSource().getResultValueCleanupStrategies().get(resultKey);
 
                         if (resultValueCleanupStrategy != null) {
-                            resultValue = resultValueCleanupStrategy.cleanUpResultValue(resultValue);
+                            resultValue = resultValueCleanupStrategy.apply(resultValue);
                         }
 
                         results.put(resultKey, resultValue);
