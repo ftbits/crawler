@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.Semaphore;
 
 public class Crawler extends Thread {
 
@@ -19,6 +20,7 @@ public class Crawler extends Thread {
     private Set<String> resultUrls;
     private BlockingQueue<String> resultUrlsQueue;
     private boolean finished;
+    private Semaphore semaphore;
     private Thread resultProcessor;
 
     public Crawler(Source source, ResultRepository resultRepository) {
@@ -28,7 +30,8 @@ public class Crawler extends Thread {
         resultUrls = new HashSet<String>();
         resultUrlsQueue = new LinkedBlockingDeque<String>();
         finished = false;
-        resultProcessor = new ResultProcessor(this, resultRepository);
+        semaphore = new Semaphore(0);
+        resultProcessor = new ResultProcessor(this, resultRepository, semaphore);
 
         toCrawl.add(source.getSeed());
     }
@@ -83,6 +86,12 @@ public class Crawler extends Thread {
                 toCrawl.remove(url);
                 crawled.add(url);
             }
+        }
+
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         finished = true;
