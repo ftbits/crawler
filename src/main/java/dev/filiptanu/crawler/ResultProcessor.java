@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -13,16 +14,18 @@ public class ResultProcessor extends Thread {
 
     private Crawler crawler;
     private ResultRepository resultRepository;
+    private Semaphore semaphore;
 
-    public ResultProcessor(Crawler crawler, ResultRepository resultRepository) {
+    public ResultProcessor(Crawler crawler, ResultRepository resultRepository, Semaphore semaphore) {
         this.crawler = crawler;
         this.resultRepository = resultRepository;
+        this.semaphore = semaphore;
     }
 
     public void run() {
         while (!crawler.isFinished()) {
             try {
-                String url = crawler.getResultUrlsQueue().poll(5, TimeUnit.SECONDS);
+                String url = crawler.getResultUrlsQueue().poll(30, TimeUnit.SECONDS);
 
                 if (url != null) {
                     Map<String, ResultValueEntity> resultValueCssQueries = crawler.getSource().getResultValueEntities();
@@ -45,6 +48,10 @@ public class ResultProcessor extends Thread {
                     });
 
                     resultRepository.saveResults(results);
+
+                    if (crawler.getResultUrlsQueue().isEmpty()) {
+                        semaphore.release();
+                    }
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
