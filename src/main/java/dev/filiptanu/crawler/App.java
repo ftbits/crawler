@@ -6,8 +6,8 @@ public class App {
 
     public static void main(String[] args) throws IOException {
         Source anhoch = new Source("anhoch", "http://www.anhoch.com");
-        anhoch.addToFollowUrlCssQuery("#cat-sidemenu > li > a"); // menu categories
         anhoch.addToFollowUrlCssQuery("#cat-sidemenu > li > ul > li > a"); // menu sub-categories
+        anhoch.addToFollowUrlCssQuery("#cat-sidemenu > li > a"); // menu categories
         anhoch.addToFollowUrlCssQuery(".pagination > ul > li > a"); // pagination
         anhoch.addResultPageCssQuery(".product-name > a");
         anhoch.addResultValueCssQuery("title", new ResultValueEntity("#product > .box-stripes > .box-heading > h3", ResultType.TEXT));

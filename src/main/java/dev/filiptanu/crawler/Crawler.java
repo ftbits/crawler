@@ -1,5 +1,6 @@
 package dev.filiptanu.crawler;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -7,6 +8,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -22,8 +24,9 @@ public class Crawler extends Thread {
     private boolean finished;
     private Semaphore semaphore;
     private Thread resultProcessor;
+    private Map<String, String> cookies;
 
-    public Crawler(Source source, ResultRepository resultRepository) {
+    public Crawler(Source source, ResultRepository resultRepository) throws IOException {
         this.source = source;
         toCrawl = new HashSet<String>();
         crawled = new HashSet<String>();
@@ -34,6 +37,21 @@ public class Crawler extends Thread {
         resultProcessor = new ResultProcessor(this, resultRepository, semaphore);
 
         toCrawl.add(source.getSeed());
+
+        cookies = getResponse(source.getSeed(), null).execute().cookies();
+    }
+
+    private Connection getResponse(String url, Map<String, String> cookies) throws IOException {
+        Connection connection = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36")
+                .referrer("http://www.google.com")
+                .followRedirects(true);
+
+        if (cookies != null) {
+            connection.cookies(cookies);
+        }
+
+        return connection;
     }
 
     public void run() {
@@ -46,7 +64,7 @@ public class Crawler extends Thread {
 
             if (!crawled.contains(url)) {
                 try {
-                    Document document = Jsoup.connect(url).get();
+                    Document document = getResponse(url, cookies).execute().parse();
 
                     for (String cssQuery : source.getToFollowUrlCssQueries()) {
                         Elements toFollow = document.select(cssQuery);
