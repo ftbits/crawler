@@ -72,10 +72,9 @@ public class Crawler extends Thread {
                         for (Element element : toFollow) {
                             String urlToFollow = element.attr("href");
 
-                            if (source.hasRelativeUrls()) {
-                                urlToFollow = source.getSeed() + urlToFollow;
+                            if (source.getUrlCleanupStrategy().isPresent()) {
+                                urlToFollow = source.getUrlCleanupStrategy().get().apply(urlToFollow);
                             }
-
                             if (!crawled.contains(urlToFollow)) {
                                 toCrawl.add(urlToFollow);
                             }
@@ -88,8 +87,8 @@ public class Crawler extends Thread {
                         for (Element element : results) {
                             String resultUrl = element.attr("href");
 
-                            if (source.hasRelativeUrls()) {
-                                resultUrl = source.getSeed() + resultUrl;
+                            if (source.getUrlCleanupStrategy().isPresent()) {
+                                resultUrl = source.getUrlCleanupStrategy().get().apply(resultUrl);
                             }
 
                             if (!resultUrls.contains(resultUrl)) {
