@@ -1,16 +1,12 @@
 package dev.filiptanu.crawler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public class Source {
 
     private String name;
     private String seed;
-    private boolean hasRelativeUrls;
     private List<String> toFollowUrlCssQueries;
     private List<String> resultPageCssQueries;
     private Map<String, ResultValueEntity> resultValueEntities;
@@ -19,15 +15,18 @@ public class Source {
     public Source(String name, String seed) {
         this.name = name;
         this.seed = seed;
-        this.hasRelativeUrls = false;
         toFollowUrlCssQueries = new ArrayList<String>();
         resultPageCssQueries = new ArrayList<String>();
         resultValueEntities = new HashMap<>();
         resultValueCleanupStrategies = new HashMap<>();
     }
 
-    public void setHasRelativeUrls(boolean hasRelativeUrls) {
-        this.hasRelativeUrls = hasRelativeUrls;
+    public void setUrlCleanupStrategy(Function<String, String> urlCleanupStrategy) {
+        resultValueCleanupStrategies.put("url", urlCleanupStrategy);
+    }
+
+    public Optional<Function<String, String>> getUrlCleanupStrategy() {
+        return Optional.ofNullable(resultValueCleanupStrategies.get("url"));
     }
 
     public void addToFollowUrlCssQuery(String cssQuery) {
@@ -54,10 +53,6 @@ public class Source {
         return seed;
     }
 
-    public boolean hasRelativeUrls() {
-        return hasRelativeUrls;
-    }
-
     public List<String> getToFollowUrlCssQueries() {
         return toFollowUrlCssQueries;
     }
@@ -79,7 +74,6 @@ public class Source {
         return "Source{" +
                 "name='" + name + '\'' +
                 ", seed='" + seed + '\'' +
-                ", hasRelativeUrls=" + hasRelativeUrls +
                 ", toFollowUrlCssQueries=" + toFollowUrlCssQueries +
                 ", resultPageCssQueries=" + resultPageCssQueries +
                 ", resultValueEntities=" + resultValueEntities +
