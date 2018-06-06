@@ -18,7 +18,7 @@ public class App {
         source.addResultValueCssQuery("imageUrl", new ResultValueEntity("#product_gallery > img", ResultType.SRC));
         source.addResultValueCleanupStrategy("price", resultValue -> resultValue.replaceAll("[^0-9]", ""));
 
-        Crawler crawler = new Crawler(source, new ResultRepositoryMock());
+        Crawler crawler = new Crawler(source, results -> System.out.println("Saving results: " + results));
 
         crawler.start();
     }
