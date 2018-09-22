@@ -6,13 +6,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Crawler extends Thread {
 
@@ -24,6 +25,7 @@ public class Crawler extends Thread {
     private boolean finished;
     private Semaphore semaphore;
     private Thread resultProcessor;
+    private List<String> proxies;
     private Map<String, String> cookies;
 
     public Crawler(Source source, ResultRepository resultRepository) throws IOException {
@@ -38,10 +40,34 @@ public class Crawler extends Thread {
 
         toCrawl.add(source.getSeed());
 
+        proxies = new ArrayList<>();
+        initializeProxyList();
+
         cookies = getResponse(source.getSeed(), null).execute().cookies();
     }
 
+    private void initializeProxyList() {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource("proxy-list.txt").getFile());
+
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                proxies.add(scanner.nextLine());
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     private Connection getResponse(String url, Map<String, String> cookies) throws IOException {
+        String proxy = getRandomProxy();
+        System.out.println("Using proxy: " + proxy);
+
+        String[] proxyParts = proxy.split(":");
+
+        System.setProperty("http.proxyHost", proxyParts[0]);
+        System.setProperty("http.proxyPort", proxyParts[1]);
+
         Connection connection = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36")
                 .referrer("http://www.google.com")
@@ -52,6 +78,10 @@ public class Crawler extends Thread {
         }
 
         return connection;
+    }
+
+    private String getRandomProxy() {
+        return proxies.get(ThreadLocalRandom.current().nextInt(0, proxies.size()));
     }
 
     public void run() {
