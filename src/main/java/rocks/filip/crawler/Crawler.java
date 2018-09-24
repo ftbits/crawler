@@ -1,14 +1,17 @@
 package rocks.filip.crawler;
 
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -30,10 +33,10 @@ public class Crawler extends Thread {
 
     public Crawler(Source source, ResultRepository resultRepository) throws IOException {
         this.source = source;
-        toCrawl = new HashSet<String>();
-        crawled = new HashSet<String>();
-        resultUrls = new HashSet<String>();
-        resultUrlsQueue = new LinkedBlockingDeque<String>();
+        toCrawl = new HashSet<>();
+        crawled = new HashSet<>();
+        resultUrls = new HashSet<>();
+        resultUrlsQueue = new LinkedBlockingDeque<>();
         finished = false;
         semaphore = new Semaphore(0);
         resultProcessor = new ResultProcessor(this, resultRepository, semaphore);
@@ -44,18 +47,16 @@ public class Crawler extends Thread {
         initializeProxyList();
 
         cookies = getResponse(source.getSeed(), null).execute().cookies();
+
+        // TODO (filip): Add an option not to use proxy servers
     }
 
-    private void initializeProxyList() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("proxy-list.txt").getFile());
-
-        try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextLine()) {
-                proxies.add(scanner.nextLine());
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+    private void initializeProxyList() throws IOException {
+        InputStream is = getClass().getResourceAsStream("/proxy-list.txt");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            proxies.add(line);
         }
     }
 
@@ -94,7 +95,7 @@ public class Crawler extends Thread {
 
             if (!crawled.contains(url)) {
                 try {
-                    Document document = getResponse(url, cookies).execute().parse();
+                    Document document = getDocument(url);
 
                     for (String cssQuery : source.getToFollowUrlCssQueries()) {
                         Elements toFollow = document.select(cssQuery);
@@ -151,6 +152,20 @@ public class Crawler extends Thread {
 
         finished = true;
         System.out.println("Finished crawling " + source.getName());
+    }
+
+    private Document getDocument(String url) throws IOException {
+        while (true) {
+            try {
+                return getResponse(url, cookies).execute().parse();
+            } catch (SocketTimeoutException e) {
+                System.out.println("Timeout for url: " + url);
+                System.out.println("Proxy used: " + System.getProperty("http.proxyHost") + ":" + System.getProperty("http.proxyPort"));
+            } catch (HttpStatusException e) {
+                System.out.println("Got status " + e.getStatusCode() + " for url " + url);
+                System.out.println("Proxy used: " + System.getProperty("http.proxyHost") + ":" + System.getProperty("http.proxyPort"));
+            }
+        }
     }
 
     public Source getSource() {
