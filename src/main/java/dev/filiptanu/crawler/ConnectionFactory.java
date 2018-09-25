@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ConnectException;
+import java.net.NoRouteToHostException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,10 @@ public class ConnectionFactory {
                 System.out.println("Timeout for url: " + url);
             } catch (HttpStatusException e) {
                 System.out.println("Got status " + e.getStatusCode() + " for url " + url);
+            } catch (NoRouteToHostException e) {
+                System.out.println("Cannot connect to proxy for url " + url);
+            } catch (SocketException e) {
+                System.out.println("Connection reset for url " + url);
             }
         }
     }
