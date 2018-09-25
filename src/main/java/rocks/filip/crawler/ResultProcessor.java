@@ -1,6 +1,6 @@
 package rocks.filip.crawler;
 
-import org.jsoup.Jsoup;
+import lombok.AllArgsConstructor;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
@@ -10,17 +10,12 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+@AllArgsConstructor
 public class ResultProcessor extends Thread {
 
     private Crawler crawler;
     private ResultRepository resultRepository;
     private Semaphore semaphore;
-
-    public ResultProcessor(Crawler crawler, ResultRepository resultRepository, Semaphore semaphore) {
-        this.crawler = crawler;
-        this.resultRepository = resultRepository;
-        this.semaphore = semaphore;
-    }
 
     public void run() {
         while (!crawler.isFinished()) {

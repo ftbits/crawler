@@ -2,7 +2,11 @@ package rocks.filip.crawler;
 
 import java.util.*;
 import java.util.function.Function;
+import lombok.Getter;
+import lombok.ToString;
 
+@ToString
+@Getter
 public class Source {
 
     private String name;
@@ -45,46 +49,6 @@ public class Source {
 
     public void addResultValueCleanupStrategy(String resultKey, Function<String, String> resultValueCleanupStrategy) {
         resultValueCleanupStrategies.put(resultKey, resultValueCleanupStrategy);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getSeed() {
-        return seed;
-    }
-
-    public boolean isUseProxy() {
-        return useProxy;
-    }
-
-    public List<String> getToFollowUrlCssQueries() {
-        return toFollowUrlCssQueries;
-    }
-
-    public List<String> getResultPageCssQueries() {
-        return resultPageCssQueries;
-    }
-
-    public Map<String, ResultValueEntity> getResultValueEntities() {
-        return resultValueEntities;
-    }
-
-    public Map<String, Function<String, String>> getResultValueCleanupStrategies() {
-        return resultValueCleanupStrategies;
-    }
-
-    @Override
-    public String toString() {
-        return "Source{" +
-                "name='" + name + '\'' +
-                ", seed='" + seed + '\'' +
-                ", toFollowUrlCssQueries=" + toFollowUrlCssQueries +
-                ", resultPageCssQueries=" + resultPageCssQueries +
-                ", resultValueEntities=" + resultValueEntities +
-                ", resultValueCleanupStrategies=" + resultValueCleanupStrategies +
-                '}';
     }
 
 }
