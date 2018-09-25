@@ -34,7 +34,7 @@ public class ResultProcessor extends Thread {
                     results.put("url", url);
                     results.put("source", crawler.getSource().getName());
 
-                    Document document = Jsoup.connect(url).get();
+                    Document document = ConnectionFactory.getResponse(url, crawler.getCookies(), crawler.getSource().isUseProxy()).parse();
                     resultValueCssQueries.forEach((resultKey, resultValueEntity) -> {
                         String resultValue = resultValueEntity.getResultType().extractResult(document, resultValueEntity.getResultValueCssQuery());
 

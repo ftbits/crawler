@@ -7,16 +7,18 @@ public class Source {
 
     private String name;
     private String seed;
+    private boolean useProxy;
     private List<String> toFollowUrlCssQueries;
     private List<String> resultPageCssQueries;
     private Map<String, ResultValueEntity> resultValueEntities;
     private Map<String, Function<String, String>> resultValueCleanupStrategies;
 
-    public Source(String name, String seed) {
+    public Source(String name, String seed, boolean useProxy) {
         this.name = name;
         this.seed = seed;
-        toFollowUrlCssQueries = new ArrayList<String>();
-        resultPageCssQueries = new ArrayList<String>();
+        this.useProxy = useProxy;
+        toFollowUrlCssQueries = new ArrayList<>();
+        resultPageCssQueries = new ArrayList<>();
         resultValueEntities = new HashMap<>();
         resultValueCleanupStrategies = new HashMap<>();
     }
@@ -51,6 +53,10 @@ public class Source {
 
     public String getSeed() {
         return seed;
+    }
+
+    public boolean isUseProxy() {
+        return useProxy;
     }
 
     public List<String> getToFollowUrlCssQueries() {

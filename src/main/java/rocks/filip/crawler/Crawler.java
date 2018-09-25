@@ -1,22 +1,15 @@
 package rocks.filip.crawler;
 
-import org.jsoup.Connection;
-import org.jsoup.HttpStatusException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.SocketTimeoutException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadLocalRandom;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class Crawler extends Thread {
 
@@ -28,7 +21,6 @@ public class Crawler extends Thread {
     private boolean finished;
     private Semaphore semaphore;
     private Thread resultProcessor;
-    private List<String> proxies;
     private Map<String, String> cookies;
 
     public Crawler(Source source, ResultRepository resultRepository) throws IOException {
@@ -43,46 +35,7 @@ public class Crawler extends Thread {
 
         toCrawl.add(source.getSeed());
 
-        proxies = new ArrayList<>();
-        initializeProxyList();
-
-        cookies = getResponse(source.getSeed(), null).execute().cookies();
-
-        // TODO (filip): Add an option not to use proxy servers
-    }
-
-    private void initializeProxyList() throws IOException {
-        InputStream is = getClass().getResourceAsStream("/proxy-list.txt");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            proxies.add(line);
-        }
-    }
-
-    private Connection getResponse(String url, Map<String, String> cookies) throws IOException {
-        String proxy = getRandomProxy();
-        System.out.println("Using proxy: " + proxy);
-
-        String[] proxyParts = proxy.split(":");
-
-        System.setProperty("http.proxyHost", proxyParts[0]);
-        System.setProperty("http.proxyPort", proxyParts[1]);
-
-        Connection connection = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36")
-                .referrer("http://www.google.com")
-                .followRedirects(true);
-
-        if (cookies != null) {
-            connection.cookies(cookies);
-        }
-
-        return connection;
-    }
-
-    private String getRandomProxy() {
-        return proxies.get(ThreadLocalRandom.current().nextInt(0, proxies.size()));
+        cookies = ConnectionFactory.getResponse(source.getSeed(), null, source.isUseProxy()).cookies();
     }
 
     public void run() {
@@ -95,7 +48,7 @@ public class Crawler extends Thread {
 
             if (!crawled.contains(url)) {
                 try {
-                    Document document = getDocument(url);
+                    Document document = ConnectionFactory.getResponse(url, cookies, source.isUseProxy()).parse();
 
                     for (String cssQuery : source.getToFollowUrlCssQueries()) {
                         Elements toFollow = document.select(cssQuery);
@@ -154,20 +107,6 @@ public class Crawler extends Thread {
         System.out.println("Finished crawling " + source.getName());
     }
 
-    private Document getDocument(String url) throws IOException {
-        while (true) {
-            try {
-                return getResponse(url, cookies).execute().parse();
-            } catch (SocketTimeoutException e) {
-                System.out.println("Timeout for url: " + url);
-                System.out.println("Proxy used: " + System.getProperty("http.proxyHost") + ":" + System.getProperty("http.proxyPort"));
-            } catch (HttpStatusException e) {
-                System.out.println("Got status " + e.getStatusCode() + " for url " + url);
-                System.out.println("Proxy used: " + System.getProperty("http.proxyHost") + ":" + System.getProperty("http.proxyPort"));
-            }
-        }
-    }
-
     public Source getSource() {
         return source;
     }
@@ -178,6 +117,10 @@ public class Crawler extends Thread {
 
     public boolean isFinished() {
         return finished;
+    }
+
+    public Map<String, String> getCookies() {
+        return cookies;
     }
 
 }
