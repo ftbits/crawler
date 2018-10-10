@@ -12,12 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Logger;
+
 import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 
 public class ConnectionFactory {
+
+    private static final Logger logger = Logger.getLogger(ConnectionFactory.class.getName());
 
     private static List<String> proxies;
 
@@ -40,37 +44,39 @@ public class ConnectionFactory {
         }
     }
 
-    public static Response getResponse(String url, Map<String, String> cookies, boolean useProxy) throws IOException {
+    public static Response getResponse(String url, Map<String, String> cookies, boolean useProxy) {
         while (true) {
             try {
                 Connection connection = getConnection(url, cookies, useProxy);
                 return connection.execute();
             } catch (ConnectException e) {
-                System.out.println("Connection refused for url: " + url);
+                logger.warning("Connection refused for url: " + url);
             } catch (SocketTimeoutException e) {
-                System.out.println("Timeout for url: " + url);
+                logger.warning("Timeout for url: " + url);
             } catch (HttpStatusException e) {
-                System.out.println("Got status " + e.getStatusCode() + " for url " + url);
+                logger.warning("Got status " + e.getStatusCode() + " for url " + url);
             } catch (NoRouteToHostException e) {
-                System.out.println("Cannot connect to proxy for url " + url);
+                logger.warning("Cannot connect to proxy for url " + url);
             } catch (SocketException e) {
-                System.out.println("Connection reset for url " + url);
+                logger.warning("Connection reset for url " + url);
+            } catch (IOException e) {
+                logger.warning("IOException: " + e.getMessage());
             }
         }
     }
 
     private static Connection getConnection(String url, Map<String, String> cookies, boolean useProxy) {
-        String proxy = getRandomProxy();
-        System.out.println("Using proxy: " + proxy);
-
-        String[] proxyParts = proxy.split(":");
-
         Connection connection = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36")
                 .referrer("http://www.google.com")
                 .followRedirects(true);
 
         if (useProxy) {
+            String proxy = getRandomProxy();
+            logger.info("Using proxy: " + proxy);
+
+            String[] proxyParts = proxy.split(":");
+
             connection.proxy(proxyParts[0], Integer.parseInt(proxyParts[1]));
         }
 

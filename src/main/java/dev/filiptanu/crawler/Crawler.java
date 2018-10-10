@@ -7,11 +7,15 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Logger;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Crawler extends Thread {
+
+    private static final Logger logger = Logger.getLogger(Crawler.class.getName());
 
     private Source source;
     private Set<String> toCrawl;
@@ -23,7 +27,7 @@ public class Crawler extends Thread {
     private Thread resultProcessor;
     private Map<String, String> cookies;
 
-    public Crawler(Source source, ResultRepository resultRepository) throws IOException {
+    public Crawler(Source source, ResultRepository resultRepository) {
         this.source = source;
         toCrawl = new HashSet<>();
         crawled = new HashSet<>();
@@ -44,7 +48,7 @@ public class Crawler extends Thread {
         while (!toCrawl.isEmpty()) {
             String url = toCrawl.iterator().next();
 
-            System.out.println("Crawling: " + url);
+            logger.info("Crawling: " + url);
 
             if (!crawled.contains(url)) {
                 try {
@@ -87,9 +91,9 @@ public class Crawler extends Thread {
                         }
                     }
                 } catch (IllegalArgumentException e) {
-                    System.err.println("Malformed URL: " + url);
+                    logger.warning("Malformed URL: " + url);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.warning(e.toString());
                 }
 
                 toCrawl.remove(url);
@@ -104,7 +108,7 @@ public class Crawler extends Thread {
         }
 
         finished = true;
-        System.out.println("Finished crawling " + source.getName());
+        logger.info("Finished crawling " + source.getName());
     }
 
     public Source getSource() {
