@@ -9,9 +9,12 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 @AllArgsConstructor
 public class ResultProcessor extends Thread {
+
+    private static final Logger logger = Logger.getLogger(ResultProcessor.class.getName());
 
     private Crawler crawler;
     private ResultRepository resultRepository;
@@ -49,13 +52,13 @@ public class ResultProcessor extends Thread {
                     }
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.warning(e.toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.warning(e.toString());
             }
         }
 
-        System.out.println("ResultProcessor finished");
+        logger.info("ResultProcessor finished");
     }
 
 }
