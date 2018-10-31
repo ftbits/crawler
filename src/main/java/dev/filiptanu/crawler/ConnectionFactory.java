@@ -45,24 +45,24 @@ public class ConnectionFactory {
     }
 
     public static Response getResponse(String url, Map<String, String> cookies, boolean useProxy) {
-        while (true) {
-            try {
-                Connection connection = getConnection(url, cookies, useProxy);
-                return connection.execute();
-            } catch (ConnectException e) {
-                logger.warning("Connection refused for url: " + url);
-            } catch (SocketTimeoutException e) {
-                logger.warning("Timeout for url: " + url);
-            } catch (HttpStatusException e) {
-                logger.warning("Got status " + e.getStatusCode() + " for url " + url);
-            } catch (NoRouteToHostException e) {
-                logger.warning("Cannot connect to proxy for url " + url);
-            } catch (SocketException e) {
-                logger.warning("Connection reset for url " + url);
-            } catch (IOException e) {
-                logger.warning("IOException: " + e.getMessage());
-            }
+        try {
+            Connection connection = getConnection(url, cookies, useProxy);
+            return connection.execute();
+        } catch (ConnectException e) {
+            logger.warning("Connection refused for url: " + url);
+        } catch (SocketTimeoutException e) {
+            logger.warning("Timeout for url: " + url);
+        } catch (HttpStatusException e) {
+            logger.warning("Got status " + e.getStatusCode() + " for url " + url);
+        } catch (NoRouteToHostException e) {
+            logger.warning("Cannot connect to proxy for url " + url);
+        } catch (SocketException e) {
+            logger.warning("Connection reset for url " + url);
+        } catch (IOException e) {
+            logger.warning("IOException: " + e.getMessage());
         }
+
+        return null;
     }
 
     private static Connection getConnection(String url, Map<String, String> cookies, boolean useProxy) {

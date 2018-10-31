@@ -33,22 +33,25 @@ public class ResultProcessor extends Thread {
                     results.put("source", crawler.getSource().getName());
 
                     Document document = ConnectionFactory.getResponse(url, crawler.getCookies(), crawler.getSource().isUseProxy()).parse();
-                    resultValueCssQueries.forEach((resultKey, resultValueEntity) -> {
-                        String resultValue = resultValueEntity.getResultType().extractResult(document, resultValueEntity.getResultValueCssQuery());
 
-                        Function<String, String> resultValueCleanupStrategy = crawler.getSource().getResultValueCleanupStrategies().get(resultKey);
+                    if (document != null) {
+                        resultValueCssQueries.forEach((resultKey, resultValueEntity) -> {
+                            String resultValue = resultValueEntity.getResultType().extractResult(document, resultValueEntity.getResultValueCssQuery());
 
-                        if (resultValueCleanupStrategy != null) {
-                            resultValue = resultValueCleanupStrategy.apply(resultValue);
+                            Function<String, String> resultValueCleanupStrategy = crawler.getSource().getResultValueCleanupStrategies().get(resultKey);
+
+                            if (resultValueCleanupStrategy != null) {
+                                resultValue = resultValueCleanupStrategy.apply(resultValue);
+                            }
+
+                            results.put(resultKey, resultValue);
+                        });
+
+                        resultRepository.saveResults(results);
+
+                        if (crawler.getResultUrlsQueue().isEmpty()) {
+                            semaphore.release();
                         }
-
-                        results.put(resultKey, resultValue);
-                    });
-
-                    resultRepository.saveResults(results);
-
-                    if (crawler.getResultUrlsQueue().isEmpty()) {
-                        semaphore.release();
                     }
                 }
             } catch (InterruptedException e) {
