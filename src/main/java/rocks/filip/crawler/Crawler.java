@@ -54,38 +54,40 @@ public class Crawler extends Thread {
                 try {
                     Document document = ConnectionFactory.getResponse(url, cookies, source.isUseProxy()).parse();
 
-                    for (String cssQuery : source.getToFollowUrlCssQueries()) {
-                        Elements toFollow = document.select(cssQuery);
+                    if (document != null) {
+                        for (String cssQuery : source.getToFollowUrlCssQueries()) {
+                            Elements toFollow = document.select(cssQuery);
 
-                        for (Element element : toFollow) {
-                            String urlToFollow = element.attr("href");
+                            for (Element element : toFollow) {
+                                String urlToFollow = element.attr("href");
 
-                            if (source.getUrlCleanupStrategy().isPresent()) {
-                                urlToFollow = source.getUrlCleanupStrategy().get().apply(urlToFollow);
-                            }
-                            if (!crawled.contains(urlToFollow)) {
-                                toCrawl.add(urlToFollow);
+                                if (source.getUrlCleanupStrategy().isPresent()) {
+                                    urlToFollow = source.getUrlCleanupStrategy().get().apply(urlToFollow);
+                                }
+                                if (!crawled.contains(urlToFollow)) {
+                                    toCrawl.add(urlToFollow);
+                                }
                             }
                         }
-                    }
 
-                    for (String cssQuery : source.getResultPageCssQueries()) {
-                        Elements results = document.select(cssQuery);
+                        for (String cssQuery : source.getResultPageCssQueries()) {
+                            Elements results = document.select(cssQuery);
 
-                        for (Element element : results) {
-                            String resultUrl = element.attr("href");
+                            for (Element element : results) {
+                                String resultUrl = element.attr("href");
 
-                            if (source.getUrlCleanupStrategy().isPresent()) {
-                                resultUrl = source.getUrlCleanupStrategy().get().apply(resultUrl);
-                            }
+                                if (source.getUrlCleanupStrategy().isPresent()) {
+                                    resultUrl = source.getUrlCleanupStrategy().get().apply(resultUrl);
+                                }
 
-                            if (!resultUrls.contains(resultUrl)) {
-                                resultUrls.add(resultUrl);
+                                if (!resultUrls.contains(resultUrl)) {
+                                    resultUrls.add(resultUrl);
 
-                                try {
-                                    resultUrlsQueue.put(resultUrl);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                                    try {
+                                        resultUrlsQueue.put(resultUrl);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                         }
