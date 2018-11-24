@@ -1,11 +1,13 @@
 package rocks.filip.crawler;
 
 import lombok.AllArgsConstructor;
+import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -32,25 +34,28 @@ public class ResultProcessor extends Thread {
                     results.put("url", url);
                     results.put("source", crawler.getSource().getName());
 
-                    Document document = ConnectionFactory.getResponse(url, crawler.getCookies(), crawler.getSource().isUseProxy()).parse();
+                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, crawler.getCookies(), crawler.getSource().isUseProxy());
+                    if (connectionOptional.isPresent()) {
+                        Document document = connectionOptional.get().parse();
 
-                    if (document != null) {
-                        resultValueCssQueries.forEach((resultKey, resultValueEntity) -> {
-                            String resultValue = resultValueEntity.getResultType().extractResult(document, resultValueEntity.getResultValueCssQuery());
+                        if (document != null) {
+                            resultValueCssQueries.forEach((resultKey, resultValueEntity) -> {
+                                String resultValue = resultValueEntity.getResultType().extractResult(document, resultValueEntity.getResultValueCssQuery());
 
-                            Function<String, String> resultValueCleanupStrategy = crawler.getSource().getResultValueCleanupStrategies().get(resultKey);
+                                Function<String, String> resultValueCleanupStrategy = crawler.getSource().getResultValueCleanupStrategies().get(resultKey);
 
-                            if (resultValueCleanupStrategy != null) {
-                                resultValue = resultValueCleanupStrategy.apply(resultValue);
+                                if (resultValueCleanupStrategy != null) {
+                                    resultValue = resultValueCleanupStrategy.apply(resultValue);
+                                }
+
+                                results.put(resultKey, resultValue);
+                            });
+
+                            resultRepository.saveResults(results);
+
+                            if (crawler.getResultUrlsQueue().isEmpty()) {
+                                semaphore.release();
                             }
-
-                            results.put(resultKey, resultValue);
-                        });
-
-                        resultRepository.saveResults(results);
-
-                        if (crawler.getResultUrlsQueue().isEmpty()) {
-                            semaphore.release();
                         }
                     }
                 }
