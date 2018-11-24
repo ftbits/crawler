@@ -11,6 +11,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 
@@ -44,10 +45,10 @@ public class ConnectionFactory {
         }
     }
 
-    public static Response getResponse(String url, Map<String, String> cookies, boolean useProxy) {
+    public static Optional<Response> getResponse(String url, Map<String, String> cookies, boolean useProxy) {
         try {
             Connection connection = getConnection(url, cookies, useProxy);
-            return connection.execute();
+            return Optional.ofNullable(connection.execute());
         } catch (ConnectException e) {
             logger.warning("Connection refused for url: " + url);
         } catch (SocketTimeoutException e) {
@@ -62,7 +63,7 @@ public class ConnectionFactory {
             logger.warning("IOException: " + e.getMessage());
         }
 
-        return null;
+        return Optional.empty();
     }
 
     private static Connection getConnection(String url, Map<String, String> cookies, boolean useProxy) {
