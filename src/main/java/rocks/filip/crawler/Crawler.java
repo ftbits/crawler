@@ -1,5 +1,10 @@
 package rocks.filip.crawler;
 
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,13 +12,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Logger;
 
-import org.jsoup.Connection;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import static rocks.filip.crawler.ResultProcessor.POISON_PILL;
 
 public class Crawler extends Thread {
 
@@ -25,7 +26,6 @@ public class Crawler extends Thread {
     private Set<String> resultUrls;
     private BlockingQueue<String> resultUrlsQueue;
     private boolean finished;
-    private Semaphore semaphore;
     private Thread resultProcessor;
     private Map<String, String> cookies;
 
@@ -36,8 +36,7 @@ public class Crawler extends Thread {
         resultUrls = new HashSet<>();
         resultUrlsQueue = new LinkedBlockingDeque<>();
         finished = false;
-        semaphore = new Semaphore(0);
-        resultProcessor = new ResultProcessor(this, resultRepository, semaphore);
+        resultProcessor = new ResultProcessor(this, resultRepository);
 
         toCrawl.add(source.getSeed());
 
@@ -57,7 +56,7 @@ public class Crawler extends Thread {
 
             if (!crawled.contains(url)) {
                 try {
-                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(source.getSeed(), null, source.isUseProxy());
+                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, null, source.isUseProxy());
                     if (connectionOptional.isPresent()) {
                         Document document = connectionOptional.get().parse();
 
@@ -111,11 +110,7 @@ public class Crawler extends Thread {
             }
         }
 
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        resultUrlsQueue.add(POISON_PILL);
 
         finished = true;
         logger.info("Finished crawling " + source.getName());

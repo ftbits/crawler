@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -18,14 +17,20 @@ public class ResultProcessor extends Thread {
 
     private static final Logger logger = Logger.getLogger(ResultProcessor.class.getName());
 
+    public static final String POISON_PILL = "POISON_PILL";
+
     private Crawler crawler;
     private ResultRepository resultRepository;
-    private Semaphore semaphore;
+//    private Semaphore semaphore;
 
     public void run() {
-        while (!crawler.isFinished()) {
+        while (true) {
             try {
                 String url = crawler.getResultUrlsQueue().poll(30, TimeUnit.SECONDS);
+
+                if (url == POISON_PILL) {
+                    break;
+                }
 
                 if (url != null) {
                     Map<String, ResultValueEntity> resultValueCssQueries = crawler.getSource().getResultValueEntities();
@@ -52,10 +57,6 @@ public class ResultProcessor extends Thread {
                             });
 
                             resultRepository.saveResults(results);
-
-                            if (crawler.getResultUrlsQueue().isEmpty()) {
-                                semaphore.release();
-                            }
                         }
                     }
                 }
