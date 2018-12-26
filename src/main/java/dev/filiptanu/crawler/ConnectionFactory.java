@@ -19,6 +19,7 @@ import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
 
 public class ConnectionFactory {
 
@@ -70,7 +71,8 @@ public class ConnectionFactory {
         Connection connection = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36")
                 .referrer("http://www.google.com")
-                .followRedirects(true);
+                .followRedirects(true)
+                .parser(Parser.xmlParser());
 
         if (useProxy) {
             String proxy = getRandomProxy();
