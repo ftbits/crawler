@@ -1,9 +1,6 @@
 package dev.filiptanu.crawler;
 
-import org.jsoup.Connection;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import static dev.filiptanu.crawler.ResultProcessor.POISON_PILL;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -11,10 +8,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
-
-import static dev.filiptanu.crawler.ResultProcessor.POISON_PILL;
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class Crawler extends Thread {
 
@@ -34,7 +33,7 @@ public class Crawler extends Thread {
         toCrawl = new HashSet<>();
         crawled = new HashSet<>();
         resultUrls = new HashSet<>();
-        resultUrlsQueue = new LinkedBlockingDeque<>();
+        resultUrlsQueue = new LinkedBlockingQueue<>();
         finished = false;
         resultProcessor = new ResultProcessor(this, resultRepository);
 
