@@ -8,7 +8,8 @@ import org.jsoup.nodes.Document;
 public enum ResultType {
 
     TEXT((document, cssQuery) -> document.select(cssQuery).text()),
-    SRC((document, cssQuery) -> document.select(cssQuery).attr("src"));
+    SRC((document, cssQuery) -> document.select(cssQuery).attr("src")),
+    DEFAULTIMAGE((document, cssQuery) -> document.select(cssQuery).attr("defaultimage"));
 
     private BiFunction<Document, String, String> resultExtractor;
 
