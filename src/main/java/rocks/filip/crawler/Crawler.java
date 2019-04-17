@@ -3,6 +3,7 @@ package rocks.filip.crawler;
 import static rocks.filip.crawler.ResultProcessor.POISON_PILL;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 import org.jsoup.Connection;
+import org.jsoup.Connection.Response;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -36,12 +38,14 @@ public class Crawler extends Thread {
         resultUrlsQueue = new LinkedBlockingQueue<>();
         finished = false;
         resultProcessor = new ResultProcessor(this, resultRepository);
+        cookies = new HashMap<>();
 
         toCrawl.add(source.getSeed());
 
         Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(source.getSeed(), null, source.isUseProxy());
         if (connectionOptional.isPresent()) {
-            cookies = connectionOptional.get().cookies();
+            Response response = connectionOptional.get();
+            cookies.putAll(response.cookies());
         }
     }
 
@@ -55,9 +59,10 @@ public class Crawler extends Thread {
 
             if (!crawled.contains(url)) {
                 try {
-                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, null, source.isUseProxy());
+                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, cookies, source.isUseProxy());
                     if (connectionOptional.isPresent()) {
-                        Document document = connectionOptional.get().parse();
+                        Response response = connectionOptional.get();
+                        Document document = response.parse();
 
                         if (document != null) {
                             for (String cssQuery : source.getToFollowUrlCssQueries()) {
