@@ -9,7 +9,8 @@ public enum ResultType {
 
     TEXT((document, cssQuery) -> document.select(cssQuery).text()),
     SRC((document, cssQuery) -> document.select(cssQuery).attr("src")),
-    DEFAULTIMAGE((document, cssQuery) -> document.select(cssQuery).attr("defaultimage"));
+    DEFAULTIMAGE((document, cssQuery) -> document.select(cssQuery).attr("defaultimage")),
+    HREF((document, cssQuery) -> document.select(cssQuery).attr("href"));
 
     private BiFunction<Document, String, String> resultExtractor;
 
