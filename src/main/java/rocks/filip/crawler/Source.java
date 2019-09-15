@@ -11,16 +11,14 @@ public class Source {
 
     private String name;
     private String seed;
-    private boolean useProxy;
     private List<String> toFollowUrlCssQueries;
     private List<String> resultPageCssQueries;
     private Map<String, ResultValueEntity> resultValueEntities;
     private Map<String, Function<String, String>> resultValueCleanupStrategies;
 
-    public Source(String name, String seed, boolean useProxy) {
+    public Source(String name, String seed) {
         this.name = name;
         this.seed = seed;
-        this.useProxy = useProxy;
         toFollowUrlCssQueries = new ArrayList<>();
         resultPageCssQueries = new ArrayList<>();
         resultValueEntities = new HashMap<>();

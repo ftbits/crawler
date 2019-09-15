@@ -5,7 +5,7 @@ import java.io.IOException;
 public class App {
 
     public static void main(String[] args) throws IOException {
-        Source source = new Source("anhoch", "http://www.anhoch.com", true);
+        Source source = new Source("anhoch", "http://www.anhoch.com");
 //        source.setUrlCleanupStrategy(url -> url.trim());
         source.addToFollowUrlCssQuery("#cat-sidemenu > li > ul > li > a"); // menu sub-categories
         source.addToFollowUrlCssQuery("#cat-sidemenu > li > a"); // menu categories

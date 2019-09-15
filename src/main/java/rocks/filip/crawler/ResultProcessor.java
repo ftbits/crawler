@@ -39,7 +39,7 @@ public class ResultProcessor extends Thread {
                     results.put("url", url);
                     results.put("source", crawler.getSource().getName());
 
-                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, crawler.getCookies(), crawler.getSource().isUseProxy());
+                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, crawler.getCookies());
                     if (connectionOptional.isPresent()) {
                         Document document = connectionOptional.get().parse();
 

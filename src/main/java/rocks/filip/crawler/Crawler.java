@@ -42,7 +42,7 @@ public class Crawler extends Thread {
 
         toCrawl.add(source.getSeed());
 
-        Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(source.getSeed(), null, source.isUseProxy());
+        Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(source.getSeed(), null);
         if (connectionOptional.isPresent()) {
             Response response = connectionOptional.get();
             cookies.putAll(response.cookies());
@@ -59,7 +59,7 @@ public class Crawler extends Thread {
 
             if (!crawled.contains(url)) {
                 try {
-                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, cookies, source.isUseProxy());
+                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, cookies);
                     if (connectionOptional.isPresent()) {
                         Response response = connectionOptional.get();
                         Document document = response.parse();
