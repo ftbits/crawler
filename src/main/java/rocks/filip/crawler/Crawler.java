@@ -27,6 +27,7 @@ public class Crawler extends Thread {
     private BlockingQueue<String> resultUrlsQueue;
     private ResultProcessorWorker resultProcessorWorker;
     private Map<String, String> cookies;
+    private DocumentRetriever documentRetriever;
 
     private Crawler() {
         toCrawl = new HashSet<>();
@@ -34,13 +35,14 @@ public class Crawler extends Thread {
         resultUrls = new HashSet<>();
     }
 
-    public Crawler(Source source, BlockingQueue<String> resultUrlsQueue, ResultProcessorWorker resultProcessorWorker, Map<String, String> cookies) {
+    public Crawler(Source source, BlockingQueue<String> resultUrlsQueue, ResultProcessorWorker resultProcessorWorker, Map<String, String> cookies, DocumentRetriever documentRetriever) {
         this();
 
         this.source = source;
         this.resultUrlsQueue = resultUrlsQueue;
         this.resultProcessorWorker = resultProcessorWorker;
         this.cookies = cookies;
+        this.documentRetriever = documentRetriever;
 
         toCrawl.add(source.getSeed());
 
@@ -61,45 +63,42 @@ public class Crawler extends Thread {
 
             if (!crawled.contains(url)) {
                 try {
-                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, cookies);
-                    if (connectionOptional.isPresent()) {
-                        Response response = connectionOptional.get();
-                        Document document = response.parse();
+                    Optional<Document> documentOptional = documentRetriever.retrieveDocumentFromUrl(url, cookies);
+                    if (documentOptional.isPresent()) {
+                        Document document = documentOptional.get();
 
-                        if (document != null) {
-                            for (String cssQuery : source.getToFollowUrlCssQueries()) {
-                                Elements toFollow = document.select(cssQuery);
+                        for (String cssQuery : source.getToFollowUrlCssQueries()) {
+                            Elements toFollow = document.select(cssQuery);
 
-                                for (Element element : toFollow) {
-                                    String urlToFollow = element.attr("href");
+                            for (Element element : toFollow) {
+                                String urlToFollow = element.attr("href");
 
-                                    if (source.getUrlCleanupStrategy().isPresent()) {
-                                        urlToFollow = source.getUrlCleanupStrategy().get().apply(urlToFollow);
-                                    }
-                                    if (!crawled.contains(urlToFollow)) {
-                                        toCrawl.add(urlToFollow);
-                                    }
+                                if (source.getUrlCleanupStrategy().isPresent()) {
+                                    urlToFollow = source.getUrlCleanupStrategy().get().apply(urlToFollow);
+                                }
+                                if (!crawled.contains(urlToFollow)) {
+                                    toCrawl.add(urlToFollow);
                                 }
                             }
+                        }
 
-                            for (String cssQuery : source.getResultPageCssQueries()) {
-                                Elements results = document.select(cssQuery);
+                        for (String cssQuery : source.getResultPageCssQueries()) {
+                            Elements results = document.select(cssQuery);
 
-                                for (Element element : results) {
-                                    String resultUrl = element.attr("href");
+                            for (Element element : results) {
+                                String resultUrl = element.attr("href");
 
-                                    if (source.getUrlCleanupStrategy().isPresent()) {
-                                        resultUrl = source.getUrlCleanupStrategy().get().apply(resultUrl);
-                                    }
+                                if (source.getUrlCleanupStrategy().isPresent()) {
+                                    resultUrl = source.getUrlCleanupStrategy().get().apply(resultUrl);
+                                }
 
-                                    if (!resultUrls.contains(resultUrl)) {
-                                        resultUrls.add(resultUrl);
+                                if (!resultUrls.contains(resultUrl)) {
+                                    resultUrls.add(resultUrl);
 
-                                        try {
-                                            resultUrlsQueue.put(resultUrl);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
+                                    try {
+                                        resultUrlsQueue.put(resultUrl);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
                                     }
                                 }
                             }

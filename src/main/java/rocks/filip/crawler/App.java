@@ -25,8 +25,9 @@ public class App {
         BlockingQueue<String> resultUrlsQueue = new LinkedBlockingQueue<>();
         Map<String, String> cookies = new HashMap<>();
         ResultRepository resultRepository = results -> System.out.println("Saving results: " + results);
-        ResultProcessorWorker resultProcessorWorker = new ResultProcessorWorker(source, resultUrlsQueue, resultRepository, cookies);
-        Crawler crawler = new Crawler(source, resultUrlsQueue, resultProcessorWorker, cookies);
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        ResultProcessorWorker resultProcessorWorker = new ResultProcessorWorker(source, resultUrlsQueue, resultRepository, cookies, documentRetriever);
+        Crawler crawler = new Crawler(source, resultUrlsQueue, resultProcessorWorker, cookies, documentRetriever);
 
         crawler.start();
     }
