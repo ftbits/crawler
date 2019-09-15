@@ -1,8 +1,9 @@
 package dev.filiptanu.crawler;
 
-import java.util.function.BiFunction;
 import lombok.AllArgsConstructor;
 import org.jsoup.nodes.Document;
+
+import java.util.function.BiFunction;
 
 @AllArgsConstructor
 public enum ResultType {

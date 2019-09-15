@@ -3,13 +3,11 @@ package dev.filiptanu.crawler;
 import static dev.filiptanu.crawler.ResultProcessor.POISON_PILL;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
@@ -26,19 +24,22 @@ public class Crawler extends Thread {
     private Set<String> crawled;
     private Set<String> resultUrls;
     private BlockingQueue<String> resultUrlsQueue;
-    private boolean finished;
-    private Thread resultProcessor;
+    private ResultProcessorWorker resultProcessorWorker;
     private Map<String, String> cookies;
 
-    public Crawler(Source source, ResultRepository resultRepository) {
-        this.source = source;
+    private Crawler() {
         toCrawl = new HashSet<>();
         crawled = new HashSet<>();
         resultUrls = new HashSet<>();
-        resultUrlsQueue = new LinkedBlockingQueue<>();
-        finished = false;
-        resultProcessor = new ResultProcessor(this, resultRepository);
-        cookies = new HashMap<>();
+    }
+
+    public Crawler(Source source, BlockingQueue<String> resultUrlsQueue, ResultProcessorWorker resultProcessorWorker, Map<String, String> cookies) {
+        this();
+
+        this.source = source;
+        this.resultUrlsQueue = resultUrlsQueue;
+        this.resultProcessorWorker = resultProcessorWorker;
+        this.cookies = cookies;
 
         toCrawl.add(source.getSeed());
 
@@ -50,7 +51,7 @@ public class Crawler extends Thread {
     }
 
     public void run() {
-        resultProcessor.start();
+        resultProcessorWorker.start();
 
         while (!toCrawl.isEmpty()) {
             String url = toCrawl.iterator().next();
@@ -116,24 +117,7 @@ public class Crawler extends Thread {
 
         resultUrlsQueue.add(POISON_PILL);
 
-        finished = true;
         logger.info("Finished crawling " + source.getName());
-    }
-
-    public Source getSource() {
-        return source;
-    }
-
-    public BlockingQueue<String> getResultUrlsQueue() {
-        return resultUrlsQueue;
-    }
-
-    public boolean isFinished() {
-        return finished;
-    }
-
-    public Map<String, String> getCookies() {
-        return cookies;
     }
 
 }

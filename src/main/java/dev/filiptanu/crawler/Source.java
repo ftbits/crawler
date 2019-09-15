@@ -1,9 +1,10 @@
 package dev.filiptanu.crawler;
 
-import java.util.*;
-import java.util.function.Function;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.util.*;
+import java.util.function.Function;
 
 @ToString
 @Getter
