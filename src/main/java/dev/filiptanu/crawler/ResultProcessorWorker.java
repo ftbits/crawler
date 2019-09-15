@@ -1,7 +1,6 @@
 package dev.filiptanu.crawler;
 
 import lombok.AllArgsConstructor;
-import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
@@ -24,6 +23,7 @@ public class ResultProcessorWorker extends Thread {
     private BlockingQueue<String> resultUrlsQueue;
     private ResultRepository resultRepository;
     private Map<String, String> cookies;
+    private DocumentRetriever documentRetriever;
 
     public void run() {
         while (true) {
@@ -41,25 +41,23 @@ public class ResultProcessorWorker extends Thread {
                     results.put("url", url);
                     results.put("source", source.getName());
 
-                    Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(url, cookies);
-                    if (connectionOptional.isPresent()) {
-                        Document document = connectionOptional.get().parse();
+                    Optional<Document> documentOptional = documentRetriever.retrieveDocumentFromUrl(url, cookies);
+                    if (documentOptional.isPresent()) {
+                        Document document = documentOptional.get();
 
-                        if (document != null) {
-                            resultValueCssQueries.forEach((resultKey, resultValueEntity) -> {
-                                String resultValue = resultValueEntity.getResultType().extractResult(document, resultValueEntity.getResultValueCssQuery());
+                        resultValueCssQueries.forEach((resultKey, resultValueEntity) -> {
+                            String resultValue = resultValueEntity.getResultType().extractResult(document, resultValueEntity.getResultValueCssQuery());
 
-                                Function<String, String> resultValueCleanupStrategy = source.getResultValueCleanupStrategies().get(resultKey);
+                            Function<String, String> resultValueCleanupStrategy = source.getResultValueCleanupStrategies().get(resultKey);
 
-                                if (resultValueCleanupStrategy != null) {
-                                    resultValue = resultValueCleanupStrategy.apply(resultValue);
-                                }
+                            if (resultValueCleanupStrategy != null) {
+                                resultValue = resultValueCleanupStrategy.apply(resultValue);
+                            }
 
-                                results.put(resultKey, resultValue);
-                            });
+                            results.put(resultKey, resultValue);
+                        });
 
-                            resultRepository.saveResults(results);
-                        }
+                        resultRepository.saveResults(results);
                     }
                 }
             } catch (InterruptedException e) {
