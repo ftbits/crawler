@@ -1,7 +1,7 @@
 package rocks.filip.crawler;
 
-public interface Constants {
+public enum Constants {
 
-    String POISON_PILL = "POISON_PILL";
+    POISON_PILL;
 
 }

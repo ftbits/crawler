@@ -1,14 +1,16 @@
 package rocks.filip.crawler;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Logger;
 
 public class App {
 
-    public static void main(String[] args) throws IOException {
+    private static final Logger logger = Logger.getLogger(App.class.getName());
+
+    public static void main(String[] args) {
         Source source = new Source("anhoch", "http://www.anhoch.com");
 //        source.setUrlCleanupStrategy(url -> url.trim());
         source.addToFollowUrlCssQuery("#cat-sidemenu > li > ul > li > a"); // menu sub-categories
@@ -23,11 +25,13 @@ public class App {
         source.addResultValueCleanupStrategy("price", resultValue -> resultValue.replaceAll("[^0-9]", ""));
 
         BlockingQueue<String> resultUrlsQueue = new LinkedBlockingQueue<>();
+        ResultRepository resultRepository = results -> logger.info("Saving results: " + results);
         Map<String, String> cookies = new HashMap<>();
-        ResultRepository resultRepository = results -> System.out.println("Saving results: " + results);
         DocumentRetriever documentRetriever = new DocumentRetriever();
-        ResultProcessorWorker resultProcessorWorker = new ResultProcessorWorker(source, resultUrlsQueue, resultRepository, cookies, documentRetriever);
-        Crawler crawler = new Crawler(source, resultUrlsQueue, resultProcessorWorker, cookies, documentRetriever);
+        ResultProcessingStrategy resultProcessingStrategy = new StandardResultProcessingStrategy(source, documentRetriever, cookies, resultRepository);
+        ResultProcessor resultProcessor = new ResultProcessor(resultUrlsQueue, resultProcessingStrategy);
+        CrawlingStrategy crawlingStrategy = new StandardCrawlingStrategy(documentRetriever, cookies, source);
+        Crawler crawler = new Crawler(source, resultUrlsQueue, resultProcessor, crawlingStrategy);
 
         crawler.start();
     }
