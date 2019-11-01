@@ -15,6 +15,8 @@ public class ConnectionFactory {
 
     private static final Logger logger = Logger.getLogger(ConnectionFactory.class.getName());
 
+    private ConnectionFactory() {}
+
     public static Optional<Response> getResponse(String url, Map<String, String> cookies) {
         Connection connection = getConnection(url, cookies);
 

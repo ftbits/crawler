@@ -3,6 +3,7 @@ package dev.filiptanu.crawler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import dev.filiptanu.crawler.ResultType;
 
 @AllArgsConstructor
 @ToString

@@ -5,6 +5,7 @@ import lombok.ToString;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 @ToString
 @Getter
@@ -15,18 +16,28 @@ public class Source {
     private List<String> toFollowUrlCssQueries;
     private List<String> resultPageCssQueries;
     private Map<String, ResultValueEntity> resultValueEntities;
-    private Map<String, Function<String, String>> resultValueCleanupStrategies;
+    private Map<String, UnaryOperator<String>> resultValueCleanupStrategies;
 
-    public Source(String name, String seed) {
-        this.name = name;
-        this.seed = seed;
+    private Source() {
         toFollowUrlCssQueries = new ArrayList<>();
         resultPageCssQueries = new ArrayList<>();
         resultValueEntities = new HashMap<>();
         resultValueCleanupStrategies = new HashMap<>();
     }
 
-    public void setUrlCleanupStrategy(Function<String, String> urlCleanupStrategy) {
+    public Source(String name) {
+        this();
+
+        this.name = name;
+    }
+
+    public Source(String name, String seed) {
+        this(name);
+
+        this.seed = seed;
+    }
+
+    public void setUrlCleanupStrategy(UnaryOperator<String> urlCleanupStrategy) {
         resultValueCleanupStrategies.put("url", urlCleanupStrategy);
     }
 
@@ -46,7 +57,7 @@ public class Source {
         resultValueEntities.put(resultKey, resultValueEntity);
     }
 
-    public void addResultValueCleanupStrategy(String resultKey, Function<String, String> resultValueCleanupStrategy) {
+    public void addResultValueCleanupStrategy(String resultKey, UnaryOperator<String> resultValueCleanupStrategy) {
         resultValueCleanupStrategies.put(resultKey, resultValueCleanupStrategy);
     }
 
