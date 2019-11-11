@@ -14,14 +14,14 @@ public class StandardCrawlingStrategy implements CrawlingStrategy {
 
     private static final Logger logger = Logger.getLogger(StandardCrawlingStrategy.class.getName());
 
+    private Source source;
     private DocumentRetriever documentRetriever;
     private Map<String, String> cookies;
-    private Source source;
 
-    public StandardCrawlingStrategy(DocumentRetriever documentRetriever, Map<String, String> cookies, Source source) {
+    public StandardCrawlingStrategy(Source source, DocumentRetriever documentRetriever, Map<String, String> cookies) {
+        this.source = source;
         this.documentRetriever = documentRetriever;
         this.cookies = cookies;
-        this.source = source;
 
         Optional<Connection.Response> connectionOptional = ConnectionFactory.getResponse(source.getSeed(), null);
         if (connectionOptional.isPresent()) {
