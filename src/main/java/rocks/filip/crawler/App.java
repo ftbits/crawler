@@ -75,14 +75,8 @@ public class App {
                 .urlCleanupStrategy(String::trim)
                 .build();
 
-        BlockingQueue<String> resultUrlsQueue = new LinkedBlockingQueue<>();
-        ResultRepository resultRepository = results -> logger.info("Saving results: " + results);
-        Map<String, String> cookies = new HashMap<>();
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        ResultProcessingStrategy resultProcessingStrategy = new StandardResultProcessingStrategy(source, documentRetriever, cookies, resultRepository);
-        ResultProcessor resultProcessor = new ResultProcessor(resultUrlsQueue, resultProcessingStrategy);
-        CrawlingStrategy crawlingStrategy = new StandardCrawlingStrategy(documentRetriever, cookies, source);
-        Crawler crawler = new Crawler(source, resultUrlsQueue, resultProcessor, crawlingStrategy);
+        Crawler crawler = new Crawler.Builder(source, results -> logger.info("Saving results: " + results))
+                .build();
 
         crawler.start();
     }
