@@ -6,8 +6,8 @@ import lombok.ToString;
 import dev.filiptanu.crawler.ResultType;
 
 @AllArgsConstructor
-@ToString
 @Getter
+@ToString
 public class ResultValueEntity {
 
     private String resultValueCssQuery;

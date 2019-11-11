@@ -23,7 +23,7 @@ public class StandardResultProcessingStrategy implements ResultProcessingStrateg
     @Override
     public void processResult(String url) {
         try {
-            Map<String, ResultValueEntity> resultValueCssQueries = source.getResultValueEntities();
+            Map<String, ResultValueEntity> resultValueCssQueries = source.getResultNamesResultValueEntities();
 
             Map<String, String> results = new HashMap<>();
             results.put("url", url);
@@ -36,7 +36,7 @@ public class StandardResultProcessingStrategy implements ResultProcessingStrateg
                 resultValueCssQueries.forEach((resultKey, resultValueEntity) -> {
                     String resultValue = resultValueEntity.getResultType().extractResult(document, resultValueEntity.getResultValueCssQuery());
 
-                    UnaryOperator<String> resultValueCleanupStrategy = source.getResultValueCleanupStrategies().get(resultKey);
+                    UnaryOperator<String> resultValueCleanupStrategy = source.getResultNamesResultValueCleanupStrategies().get(resultKey);
 
                     if (resultValueCleanupStrategy != null) {
                         resultValue = resultValueCleanupStrategy.apply(resultValue);
