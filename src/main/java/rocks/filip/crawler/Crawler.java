@@ -91,7 +91,7 @@ public class Crawler extends Thread {
             }
 
             Crawler crawler = new Crawler(source, crawlingStrategy, resultUrlsQueue, resultProcessor);
-            if (source.getSeed() != null) {
+            if ("" != source.getSeed()) {
                 toCrawl.add(source.getSeed());
             }
             crawler.setToCrawl(toCrawl);
