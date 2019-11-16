@@ -7,6 +7,7 @@ import java.util.Set;
 
 @Getter
 public class CrawlingStrategyResponse {
+
     private Set<String> urlsToFollow;
     private Set<String> resultUrls;
 
@@ -21,4 +22,5 @@ public class CrawlingStrategyResponse {
     public void addResultUrl(String url) {
         resultUrls.add(url);
     }
+
 }
