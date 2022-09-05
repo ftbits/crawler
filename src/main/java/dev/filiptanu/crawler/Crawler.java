@@ -1,8 +1,9 @@
 package dev.filiptanu.crawler;
 
-import static dev.filiptanu.crawler.ResultProcessor.POISON_PILL;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -10,14 +11,8 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.jsoup.Connection;
-import org.jsoup.Connection.Response;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+
+import static dev.filiptanu.crawler.Constants.POISON_PILL;
 
 @Getter
 @Setter
