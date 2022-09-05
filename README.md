@@ -18,6 +18,12 @@ cd crawler
 mvn clean install
 ```
 
+To run the example:
+
+```
+mvn exec:java
+```
+
 After you have the artifact installed in your local Maven repository, you can use the library in your Java project.
 
 ## Usage

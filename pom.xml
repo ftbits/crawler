@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dev.filiptanu.crawler</groupId>
+    <groupId>mk.filip.crawler</groupId>
     <artifactId>crawler</artifactId>
     <version>1.0.1-SNAPSHOT</version>
 
@@ -46,7 +46,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>dev.filiptanu.crawler.App</mainClass>
+                    <mainClass>mk.filip.crawler.App</mainClass>
                 </configuration>
             </plugin>
         </plugins>
@@ -61,16 +61,16 @@
 
     <distributionManagement>
         <site>
-            <id>dev.filiptanu.maven.site</id>
-            <url>s3://dev.filiptanu.maven/site</url>
+            <id>mk.filip.maven.site</id>
+            <url>s3://mk.filip.maven/site</url>
         </site>
         <repository>
-            <id>dev.filiptanu.maven.release</id>
-            <url>s3://dev.filiptanu.maven/release</url>
+            <id>mk.filip.maven.release</id>
+            <url>s3://mk.filip.maven/release</url>
         </repository>
         <snapshotRepository>
-            <id>dev.filiptanu.maven.snapshot</id>
-            <url>s3://dev.filiptanu.maven/snapshot</url>
+            <id>mk.filip.maven.snapshot</id>
+            <url>s3://mk.filip.maven/snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 </project>

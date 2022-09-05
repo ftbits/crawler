@@ -1,9 +1,8 @@
-package dev.filiptanu.crawler;
+package mk.filip.crawler;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import dev.filiptanu.crawler.ResultType;
 
 @AllArgsConstructor
 @Getter

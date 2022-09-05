@@ -1,4 +1,4 @@
-package dev.filiptanu.crawler;
+package mk.filip.crawler;
 
 import lombok.Getter;
 

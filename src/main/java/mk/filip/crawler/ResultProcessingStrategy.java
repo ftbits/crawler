@@ -1,4 +1,4 @@
-package dev.filiptanu.crawler;
+package mk.filip.crawler;
 
 public interface ResultProcessingStrategy {
 

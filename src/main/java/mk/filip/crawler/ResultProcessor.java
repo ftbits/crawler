@@ -1,12 +1,10 @@
-package dev.filiptanu.crawler;
+package mk.filip.crawler;
 
 import lombok.AllArgsConstructor;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-
-import static dev.filiptanu.crawler.Constants.POISON_PILL;
 
 @AllArgsConstructor
 public class ResultProcessor extends Thread {
@@ -24,7 +22,7 @@ public class ResultProcessor extends Thread {
 
                 logger.info("Getting result for url: " + url);
 
-                if (POISON_PILL.name().equals(url)) {
+                if (Constants.POISON_PILL.name().equals(url)) {
                     break;
                 }
 
