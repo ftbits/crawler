@@ -1,4 +1,4 @@
-package mk.filip.crawler;
+package ski.tanurov.crawler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
-import static mk.filip.crawler.Constants.POISON_PILL;
+import static ski.tanurov.crawler.Constants.POISON_PILL;
 
 @Getter
 @Setter

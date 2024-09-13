@@ -1,4 +1,4 @@
-package mk.filip.crawler;
+package ski.tanurov.crawler;
 
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;

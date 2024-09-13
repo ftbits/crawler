@@ -1,4 +1,4 @@
-package mk.filip.crawler;
+package ski.tanurov.crawler;
 
 import java.util.Map;
 

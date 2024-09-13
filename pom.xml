@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>mk.filip.crawler</groupId>
+    <groupId>ski.tanurov.crawler</groupId>
     <artifactId>crawler</artifactId>
     <version>1.0.1-SNAPSHOT</version>
 
@@ -46,7 +46,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>mk.filip.crawler.App</mainClass>
+                    <mainClass>ski.tanurov.crawler.App</mainClass>
                 </configuration>
             </plugin>
         </plugins>
@@ -61,16 +61,16 @@
 
     <distributionManagement>
         <site>
-            <id>mk.filip.maven.site</id>
-            <url>s3://mk.filip.maven/site</url>
+            <id>ski.tanurov.maven.site</id>
+            <url>s3://ski.tanurov.maven/site</url>
         </site>
         <repository>
-            <id>mk.filip.maven.release</id>
-            <url>s3://mk.filip.maven/release</url>
+            <id>ski.tanurov.maven.release</id>
+            <url>s3://ski.tanurov.maven/release</url>
         </repository>
         <snapshotRepository>
-            <id>mk.filip.maven.snapshot</id>
-            <url>s3://mk.filip.maven/snapshot</url>
+            <id>ski.tanurov.maven.snapshot</id>
+            <url>s3://ski.tanurov.maven/snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
